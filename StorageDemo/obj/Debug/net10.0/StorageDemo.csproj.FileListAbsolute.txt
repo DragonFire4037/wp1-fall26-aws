@@ -32,3 +32,8 @@ C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\obj\Debug\net10.0\ref
 C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\obj\Debug\net10.0\StorageDemo.pdb
 C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\obj\Debug\net10.0\StorageDemo.genruntimeconfig.cache
 C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\obj\Debug\net10.0\ref\StorageDemo.dll
+C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\bin\Debug\net10.0\AWSSDK.Core.dll
+C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\bin\Debug\net10.0\AWSSDK.Extensions.NETCore.Setup.dll
+C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\bin\Debug\net10.0\AWSSDK.S3.dll
+C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\bin\Debug\net10.0\AWSSDK.Signin.dll
+C:\Users\natha\Documents\GitHub\wp1-fall26-aws\StorageDemo\bin\Debug\net10.0\BouncyCastle.Cryptography.dll

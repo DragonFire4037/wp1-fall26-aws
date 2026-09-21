@@ -1,9 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "JXhdcMj8C6Q=",
+  "dgSpecHash": "Mdz8bp/4en0=",
   "success": true,
   "projectFilePath": "C:\\Users\\natha\\Documents\\GitHub\\wp1-fall26-aws\\StorageDemo\\StorageDemo.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\natha\\.nuget\\packages\\awssdk.core\\4.0.102.6\\awssdk.core.4.0.102.6.nupkg.sha512",
+    "C:\\Users\\natha\\.nuget\\packages\\awssdk.extensions.netcore.setup\\4.0.101.4\\awssdk.extensions.netcore.setup.4.0.101.4.nupkg.sha512",
+    "C:\\Users\\natha\\.nuget\\packages\\awssdk.s3\\4.0.103.3\\awssdk.s3.4.0.103.3.nupkg.sha512",
+    "C:\\Users\\natha\\.nuget\\packages\\awssdk.signin\\4.0.101.11\\awssdk.signin.4.0.101.11.nupkg.sha512",
+    "C:\\Users\\natha\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
     "C:\\Users\\natha\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.12\\microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",
     "C:\\Users\\natha\\.nuget\\packages\\microsoft.openapi\\2.12.0\\microsoft.openapi.2.12.0.nupkg.sha512"
   ],

@@ -22,5 +22,8 @@
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Pkgxunit_analyzers Condition=" '$(Pkgxunit_analyzers)' == '' ">C:\Users\natha\.nuget\packages\xunit.analyzers\1.18.0</Pkgxunit_analyzers>
+    <PkgAWSSDK_Signin Condition=" '$(PkgAWSSDK_Signin)' == '' ">C:\Users\natha\.nuget\packages\awssdk.signin\4.0.101.11</PkgAWSSDK_Signin>
+    <PkgAWSSDK_Core Condition=" '$(PkgAWSSDK_Core)' == '' ">C:\Users\natha\.nuget\packages\awssdk.core\4.0.102.6</PkgAWSSDK_Core>
+    <PkgAWSSDK_S3 Condition=" '$(PkgAWSSDK_S3)' == '' ">C:\Users\natha\.nuget\packages\awssdk.s3\4.0.103.3</PkgAWSSDK_S3>
   </PropertyGroup>
 </Project>
