@@ -1,0 +1,114 @@
+# ==========================================
+# .NET / Visual Studio
+# ==========================================
+
+# Build output
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# ==========================================
+# .NET generated files
+# ==========================================
+
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# Test results
+TestResults/
+**/TestResults/
+*.trx
+
+# Coverage
+coverage/
+**/coverage/
+*.coverage
+*.coveragexml
+
+# ==========================================
+# NuGet
+# ==========================================
+
+*.nupkg
+*.snupkg
+packages/
+**/packages/
+
+# ==========================================
+# ASP.NET
+# ==========================================
+
+# Local development secrets
+secrets.json
+**/secrets.json
+
+# User-specific ASP.NET configuration
+appsettings.Local.json
+**/appsettings.Local.json
+
+# ==========================================
+# AWS / Credentials
+# ==========================================
+
+# AWS CLI credentials/config
+.aws/
+**/.aws/
+
+# Explicit credential files
+credentials
+credentials.json
+aws-credentials.json
+
+# Environment files that may contain credentials
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Local test files
+# ==========================================
+
+# Synthetic/local test files
+s3-test.txt
+large-test.txt
+
+# ==========================================
+# OS files
+# ==========================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# ==========================================
+# Temporary files
+# ==========================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
