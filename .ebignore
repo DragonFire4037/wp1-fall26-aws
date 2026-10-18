@@ -1,0 +1,24 @@
+# Ignore everything by default
+*
+
+# Include publish directory with all contents
+!publish/
+!publish/**
+
+# Include Procfile
+!Procfile
+
+# Include global.json
+!global.json
+
+# Include platform hooks
+!.platform/
+!.platform/**
+
+# Include ebextensions
+!.ebextensions/
+!.ebextensions/**
+
+# Include elasticbeanstalk config
+!.elasticbeanstalk/
+!.elasticbeanstalk/**

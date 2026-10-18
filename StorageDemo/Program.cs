@@ -23,4 +23,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
-app.Run();
+// Configure Kestrel to listen on 0.0.0.0 and the PORT environment variable (default 5000 for EB)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Run($"http://0.0.0.0:{port}");
