@@ -12,8 +12,8 @@ env:
   AWS_REGION: us-east-1
   EB_APPLICATION: wp1-fall26-aws
   EB_ENVIRONMENT: wp1-fall26-aws-dev
-  API_PROJECT: StorageDemo/StorageDemo.csproj
-  API_DLL: StorageDemo.dll
+  API_PROJECT: wp1-fall26-aws/Wp1Fall26Aws.csproj
+  API_DLL: Wp1Fall26Aws.Apidll
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -32,7 +32,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore
-        run: dotnet restore StorageDemo.slnx
+        run: dotnet restore Wp1Fall26Aws.slnx
 
       - name: Build
         run: dotnet build StorageDemo.slnx --configuration Release --no-restore
