@@ -12,12 +12,12 @@ env:
   AWS_REGION: us-east-1
   EB_APPLICATION: wp1-fall26-aws
   EB_ENVIRONMENT: wp1-fall26-aws-dev
-  API_PROJECT: wp1-fall26-aws/Wp1Fall26Aws.csproj
-  API_DLL: Wp1Fall26Aws.Apidll
+  API_PROJECT: src/Wp1Fall26Aws.Api/Wp1Fall26Aws.Api.csproj
+  API_DLL: Wp1Fall26Aws.Api.dll
 
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-test:
@@ -70,7 +70,7 @@ jobs:
 
       - name: Write Procfile
         run: |
-          echo "web: dotnet ${{ env.API_DLL }} --urls http://0.0.0.0:5000" > publish/Procfile
+          echo "web: dotnet ${{ env.API_DLL }}" > publish/Procfile
           cat publish/Procfile
 
       - name: Package source bundle
@@ -113,17 +113,25 @@ jobs:
       - name: Wait for environment health
         run: |
           echo "Waiting for $EB_ENVIRONMENT to finish updating..."
-          for i in $(seq 1 40); do
-            read -r STATUS HEALTH <<< "$(aws elasticbeanstalk describe-environments \
+          MAX_WAIT_SECONDS=900
+          START_TIME=$SECONDS
+          while [ $((SECONDS - START_TIME)) -lt "$MAX_WAIT_SECONDS" ]; do
+            read -r STATUS HEALTH HEALTH_STATUS VERSION <<< "$(aws elasticbeanstalk describe-environments \
               --environment-names "$EB_ENVIRONMENT" \
-              --query 'Environments[0].[Status,Health]' --output text)"
-            echo "status=$STATUS health=$HEALTH"
+              --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel]' --output text)"
+            echo "status=$STATUS health=$HEALTH healthStatus=$HEALTH_STATUS version=$VERSION elapsed=$((SECONDS - START_TIME))s"
             if [ "$STATUS" = "Ready" ]; then
-              if [ "$HEALTH" = "Green" ]; then
+              if [ "$HEALTH" = "Green" ] && [ "$VERSION" = "$VERSION_LABEL" ]; then
                 echo "Deployment succeeded."
                 exit 0
               fi
-              echo "Environment is Ready but health is $HEALTH. Recent events:"
+              echo "Environment is Ready but not healthy for version $VERSION_LABEL."
+              echo "Recent environment details:"
+              aws elasticbeanstalk describe-environments \
+                --environment-names "$EB_ENVIRONMENT" \
+                --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel,DateUpdated]' \
+                --output table
+              echo "Recent events:"
               aws elasticbeanstalk describe-events \
                 --environment-name "$EB_ENVIRONMENT" --max-items 15 \
                 --query 'Events[].[Severity,Message]' --output text
@@ -131,5 +139,14 @@ jobs:
             fi
             sleep 15
           done
-          echo "Timed out waiting for the environment."
+          echo "Timed out after ${MAX_WAIT_SECONDS}s waiting for the environment to become Ready/Green on version $VERSION_LABEL."
+          echo "Final environment details:"
+          aws elasticbeanstalk describe-environments \
+            --environment-names "$EB_ENVIRONMENT" \
+            --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel,DateUpdated]' \
+            --output table
+          echo "Recent events:"
+          aws elasticbeanstalk describe-events \
+            --environment-name "$EB_ENVIRONMENT" --max-items 20 \
+            --query 'Events[].[EventDate,Severity,Message]' --output table
           exit 1
