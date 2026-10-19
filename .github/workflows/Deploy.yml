@@ -69,7 +69,9 @@ jobs:
         run: dotnet publish "${{ env.API_PROJECT }}" --configuration Release --no-build --output publish
 
       - name: Write Procfile
-        run: echo "web: dotnet ${{ env.API_DLL }} --urls http://0.0.0.0:5000" > publish/Procfile
+        run: |
+          echo "web: dotnet ${{ env.API_DLL }} --urls http://0.0.0.0:5000" > publish/Procfile
+          cat publish/Procfile
 
       - name: Package source bundle
         run: |
