@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using StorageDemo.Controllers;
-using StorageDemo.Storage;
+using Wp1Fall26Aws.Api.Controllers;
+using Wp1Fall26Aws.Api.Storage;
 
 namespace StorageDemo.Tests;
 
@@ -14,7 +14,7 @@ public class UnitTest1
         DocumentsController controller = new DocumentsController(storage);
         MemoryStream content = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("test content"));
         FormFile file = new FormFile(content, 0, content.Length, "file", "test.cs");
-        
+
         file.Headers = new HeaderDictionary{["ContentType"] = "application/octet-stream"};
         var result = await controller.Upload(file);
 

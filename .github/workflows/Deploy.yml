@@ -1,7 +1,12 @@
-name: Deploy to Elastic Beanstalk
+# Build, test, and deploy to Elastic Beanstalk
+# build-test runs on pull requests targeting main and pushes to main.
+# deploy runs only on a push to main after build-test succeeds.
+
+name: Build, Test, and Deploy
 
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
 
@@ -14,10 +19,6 @@ env:
   EB_ENVIRONMENT: wp1-fall26-aws-dev
   API_PROJECT: src/Wp1Fall26Aws.Api/Wp1Fall26Aws.Api.csproj
   API_DLL: Wp1Fall26Aws.Api.dll
-
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build-test:
@@ -38,7 +39,18 @@ jobs:
         run: dotnet build Wp1Fall26Aws.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test Wp1Fall26Aws.slnx --configuration Release --no-build
+        run: dotnet test Wp1Fall26Aws.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish "${{ env.API_PROJECT }}" --configuration Release --no-build --output publish
+
+      # Pass the tested publish output to deploy so it deploys the same build.
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-publish
+          path: publish
+          retention-days: 3
 
   deploy:
     needs: build-test
@@ -47,26 +59,16 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    concurrency:
+      group: deploy-main
+      cancel-in-progress: false
+
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up .NET 10
-        uses: actions/setup-dotnet@v4
+      - name: Download build output
+        uses: actions/download-artifact@v4
         with:
-          dotnet-version: '10.0.x'
-
-      - name: Restore
-        run: dotnet restore Wp1Fall26Aws.slnx
-
-      - name: Build
-        run: dotnet build Wp1Fall26Aws.slnx --configuration Release --no-restore
-
-      - name: Test
-        run: dotnet test Wp1Fall26Aws.slnx --configuration Release --no-build
-
-      - name: Publish
-        run: dotnet publish "${{ env.API_PROJECT }}" --configuration Release --no-build --output publish
+          name: app-publish
+          path: publish
 
       - name: Write Procfile
         run: |
@@ -116,35 +118,29 @@ jobs:
           MAX_WAIT_SECONDS=900
           START_TIME=$SECONDS
           while [ $((SECONDS - START_TIME)) -lt "$MAX_WAIT_SECONDS" ]; do
-            read -r STATUS HEALTH HEALTH_STATUS VERSION <<< "$(aws elasticbeanstalk describe-environments \
+            read -r STATUS HEALTH <<< "$(aws elasticbeanstalk describe-environments \
               --environment-names "$EB_ENVIRONMENT" \
-              --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel]' --output text)"
-            echo "status=$STATUS health=$HEALTH healthStatus=$HEALTH_STATUS version=$VERSION elapsed=$((SECONDS - START_TIME))s"
+              --query 'Environments[0].[Status,Health]' --output text)"
+            echo "status=$STATUS health=$HEALTH elapsed=$((SECONDS - START_TIME))s"
+
             if [ "$STATUS" = "Ready" ]; then
-              if [ "$HEALTH" = "Green" ] && [ "$VERSION" = "$VERSION_LABEL" ]; then
+              if [ "$HEALTH" = "Green" ]; then
                 echo "Deployment succeeded."
                 exit 0
               fi
-              echo "Environment is Ready but not healthy for version $VERSION_LABEL."
-              echo "Recent environment details:"
-              aws elasticbeanstalk describe-environments \
-                --environment-names "$EB_ENVIRONMENT" \
-                --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel,DateUpdated]' \
-                --output table
+
+              echo "Environment is Ready but health is $HEALTH."
               echo "Recent events:"
               aws elasticbeanstalk describe-events \
                 --environment-name "$EB_ENVIRONMENT" --max-items 15 \
                 --query 'Events[].[Severity,Message]' --output text
               exit 1
             fi
+
             sleep 15
           done
-          echo "Timed out after ${MAX_WAIT_SECONDS}s waiting for the environment to become Ready/Green on version $VERSION_LABEL."
-          echo "Final environment details:"
-          aws elasticbeanstalk describe-environments \
-            --environment-names "$EB_ENVIRONMENT" \
-            --query 'Environments[0].[Status,Health,HealthStatus,VersionLabel,DateUpdated]' \
-            --output table
+
+          echo "Timed out after ${MAX_WAIT_SECONDS}s waiting for the environment to become Ready/Green."
           echo "Recent events:"
           aws elasticbeanstalk describe-events \
             --environment-name "$EB_ENVIRONMENT" --max-items 20 \

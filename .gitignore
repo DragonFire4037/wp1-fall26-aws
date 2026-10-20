@@ -5,6 +5,9 @@
 # Build output
 **/bin/
 **/obj/
+**/publish/
+**/.vs/
+**/.vscode/
 
 # Visual Studio
 .vs/
@@ -49,6 +52,7 @@ coverage/
 *.snupkg
 packages/
 **/packages/
+.nuget/
 
 # ==========================================
 # ASP.NET
@@ -113,7 +117,26 @@ Desktop.ini
 *.swp
 *.swo
 
+# ==========================================
 # Elastic Beanstalk Files
+# ==========================================
+
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# ==========================================
+# IDE specific files
+# ==========================================
+
+# ReSharper cache
+.resharper.user
+*.resharper.user
+
+# Generated files
+.vs/
+.vscode/
+
+# Local state
+state/
+
