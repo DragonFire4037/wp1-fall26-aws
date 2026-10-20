@@ -75,6 +75,9 @@ jobs:
           echo "web: dotnet ${{ env.API_DLL }}" > publish/Procfile
           cat publish/Procfile
 
+      - name: Copy .ebextensions
+        run: cp -r .ebextensions publish/
+
       - name: Package source bundle
         run: |
           VERSION="${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}-${GITHUB_SHA::7}"
