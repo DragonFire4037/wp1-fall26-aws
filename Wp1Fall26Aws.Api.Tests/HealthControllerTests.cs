@@ -35,7 +35,7 @@ public class HealthControllerTests
         Assert.NotNull(timestampProp);
         Assert.NotNull(serviceProp);
 
-        Assert.Equal("broken", statusProp!.GetValue(okResult.Value));
+        Assert.Equal("healthy", statusProp!.GetValue(okResult.Value));
         Assert.Equal("Wp1Fall26Aws.Api", serviceProp!.GetValue(okResult.Value));
         Assert.IsType<DateTime>(timestampProp!.GetValue(okResult.Value));
     }
