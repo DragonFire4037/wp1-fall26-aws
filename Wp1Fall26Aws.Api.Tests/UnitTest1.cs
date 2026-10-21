@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Wp1Fall26Aws.Api.Controllers;
 using Wp1Fall26Aws.Api.Storage;
 
-namespace StorageDemo.Tests;
+namespace Wp1Fall26Aws.Api.Tests;
 
 public class UnitTest1
 {

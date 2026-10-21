@@ -1,6 +1,6 @@
 using Wp1Fall26Aws.Api.Storage;
 
-namespace StorageDemo.Tests;
+namespace Wp1Fall26Aws.Api.Tests;
 
 /// <summary>
 /// Unit tests for FakeStorageService demonstrating Arrange/Act/Assert pattern.

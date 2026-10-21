@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Wp1Fall26Aws.Api.Controllers;
 
-namespace StorageDemo.Tests;
+namespace Wp1Fall26Aws.Api.Tests;
 
 /// <summary>
 /// Unit tests for the health check endpoint.
