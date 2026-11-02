@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Wp1Fall26Aws.Api.Models;
 using Wp1Fall26Aws.Api.Storage;
 
 namespace Wp1Fall26Aws.Api.Controllers;
@@ -14,7 +15,42 @@ public class DocumentsController : ControllerBase
         _storageService = storageService;
     }
 
+    /// <summary>
+    /// Gets a list of all documents with their metadata.
+    /// </summary>
+    /// <returns>A list of documents, or an empty list if no documents exist.</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<DocumentMetadata>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDocuments()
+    {
+        var documents = await _storageService.ListAsync();
+        return Ok(documents);
+    }
+
+    /// <summary>
+    /// Gets metadata for a specific document by key.
+    /// </summary>
+    /// <param name="key">The document key (URL encoded)</param>
+    /// <returns>The document metadata if found, 404 if not found.</returns>
+    [HttpGet("{**key}")]
+    [ProducesResponseType(typeof(DocumentMetadata), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDocument(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return BadRequest("Document key is required.");
+
+        var metadata = await _storageService.GetMetadataAsync(key);
+
+        if (metadata == null)
+            return NotFound(new { message = "Document not found.", key });
+
+        return Ok(metadata);
+    }
+
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         {
@@ -42,7 +78,7 @@ public class DocumentsController : ControllerBase
         var storedKey = await _storageService.UploadAsync(stream, objectKey, file.ContentType);
 
         return Ok(new
-        {objectKey = storedKey, fileName = file.FileName, contentType = file.ContentType, size = file.Length}
+        { objectKey = storedKey, fileName = file.FileName, contentType = file.ContentType, size = file.Length }
         );
     }
 }
