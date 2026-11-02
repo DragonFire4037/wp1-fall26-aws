@@ -49,7 +49,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UploadResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Upload(IFormFile file)
     {
@@ -77,9 +77,15 @@ public class DocumentsController : ControllerBase
 
         var storedKey = await _storageService.UploadAsync(stream, objectKey, file.ContentType);
 
-        return Ok(new
-        { objectKey = storedKey, fileName = file.FileName, contentType = file.ContentType, size = file.Length }
-        );
+        var response = new UploadResponse
+        {
+            ObjectKey = storedKey,
+            FileName = file.FileName,
+            ContentType = file.ContentType,
+            Size = file.Length
+        };
+
+        return CreatedAtAction(nameof(GetDocument), new { key = storedKey }, response);
     }
 
     /// <summary>

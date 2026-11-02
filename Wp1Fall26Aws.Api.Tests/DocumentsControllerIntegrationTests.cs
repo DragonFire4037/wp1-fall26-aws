@@ -41,25 +41,25 @@ public class DocumentsControllerIntegrationTests
         var result = await controller.Upload(file);
 
         // Assert
-        Assert.IsType<OkObjectResult>(result);
-        var okResult = (OkObjectResult)result;
-        Assert.NotNull(okResult.Value);
+        Assert.IsType<CreatedAtActionResult>(result);
+        var createdResult = (CreatedAtActionResult)result;
+        Assert.NotNull(createdResult.Value);
 
-        // Use reflection to check the anonymous object properties
-        var valueObj = okResult.Value!.GetType();
-        var objectKeyProp = valueObj.GetProperty("objectKey");
-        var fileNameProp = valueObj.GetProperty("fileName");
-        var contentTypeProp = valueObj.GetProperty("contentType");
-        var sizeProp = valueObj.GetProperty("size");
+        // Use reflection to check the UploadResponse properties
+        var valueObj = createdResult.Value!.GetType();
+        var objectKeyProp = valueObj.GetProperty("ObjectKey");
+        var fileNameProp = valueObj.GetProperty("FileName");
+        var contentTypeProp = valueObj.GetProperty("ContentType");
+        var sizeProp = valueObj.GetProperty("Size");
 
         Assert.NotNull(objectKeyProp);
         Assert.NotNull(fileNameProp);
         Assert.NotNull(contentTypeProp);
         Assert.NotNull(sizeProp);
 
-        Assert.Equal(fileName, fileNameProp!.GetValue(okResult.Value));
-        Assert.Equal(contentType, contentTypeProp!.GetValue(okResult.Value));
-        Assert.Equal(fileContent.Length, (long)sizeProp!.GetValue(okResult.Value)!);
+        Assert.Equal(fileName, fileNameProp!.GetValue(createdResult.Value));
+        Assert.Equal(contentType, contentTypeProp!.GetValue(createdResult.Value));
+        Assert.Equal(fileContent.Length, (long)sizeProp!.GetValue(createdResult.Value)!);
     }
 
     /// <summary>

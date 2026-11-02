@@ -14,26 +14,27 @@ namespace Wp1Fall26Aws.Api.Tests;
 /// </summary>
 public class DocumentsControllerPutDeleteTests
 {
-    private static string GetObjectKeyFromUploadResponse(OkObjectResult uploadResult)
+    private static string GetObjectKeyFromUploadResponse(CreatedAtActionResult uploadResult)
     {
         var value = uploadResult!.Value;
         if (value == null)
             throw new NullReferenceException("Upload response value is null");
 
-        var property = value.GetType().GetProperty("objectKey");
+        var property = value.GetType().GetProperty("ObjectKey");
         if (property == null)
         {
             // Debug: print all properties
             var props = string.Join(", ", value.GetType().GetProperties().Select(p => p.Name));
-            throw new InvalidOperationException($"Property 'objectKey' not found. Available properties: {props}");
+            throw new InvalidOperationException($"Property 'ObjectKey' not found. Available properties: {props}");
         }
 
         var keyValue = property.GetValue(value);
         if (keyValue == null)
-            throw new NullReferenceException("objectKey property is null");
+            throw new NullReferenceException("ObjectKey property is null");
 
         return (string)keyValue;
     }
+
 
     #region PUT Tests
 
@@ -55,8 +56,8 @@ public class DocumentsControllerPutDeleteTests
         };
 
         var uploadResult = await controller.Upload(initialFile);
-        var uploadOkResult = Assert.IsType<OkObjectResult>(uploadResult);
-        string objectKey = GetObjectKeyFromUploadResponse(uploadOkResult);
+        var uploadCreatedResult = Assert.IsType<CreatedAtActionResult>(uploadResult);
+        string objectKey = GetObjectKeyFromUploadResponse(uploadCreatedResult);
 
         // Act: Update the document
         var newContent = "Updated content - longer and different";
@@ -119,8 +120,8 @@ public class DocumentsControllerPutDeleteTests
         };
 
         var uploadResult = await controller.Upload(file);
-        var uploadOkResult = Assert.IsType<OkObjectResult>(uploadResult);
-        string objectKey = GetObjectKeyFromUploadResponse(uploadOkResult);
+        var uploadCreatedResult = Assert.IsType<CreatedAtActionResult>(uploadResult);
+        string objectKey = GetObjectKeyFromUploadResponse(uploadCreatedResult);
 
         // Act: Try to update with invalid content type
         var invalidContent = "Invalid file content";
@@ -155,8 +156,8 @@ public class DocumentsControllerPutDeleteTests
         };
 
         var uploadResult = await controller.Upload(file);
-        var uploadOkResult = Assert.IsType<OkObjectResult>(uploadResult);
-        string objectKey = GetObjectKeyFromUploadResponse(uploadOkResult);
+        var uploadCreatedResult = Assert.IsType<CreatedAtActionResult>(uploadResult);
+        string objectKey = GetObjectKeyFromUploadResponse(uploadCreatedResult);
 
         // Act: Try to update with oversized file
         var oversizedContent = new byte[6 * 1024 * 1024]; // 6 MB
@@ -232,8 +233,8 @@ public class DocumentsControllerPutDeleteTests
         };
 
         var uploadResult = await controller.Upload(file);
-        var uploadOkResult = Assert.IsType<OkObjectResult>(uploadResult);
-        string objectKey = GetObjectKeyFromUploadResponse(uploadOkResult);
+        var uploadCreatedResult = Assert.IsType<CreatedAtActionResult>(uploadResult);
+        string objectKey = GetObjectKeyFromUploadResponse(uploadCreatedResult);
 
         // Verify document exists
         var getResult = await controller.GetDocument(objectKey);
@@ -301,9 +302,9 @@ public class DocumentsControllerPutDeleteTests
         };
 
         var createResult = await controller.Upload(createFile);
-        Assert.IsType<OkObjectResult>(createResult);
-        var createOkResult = (OkObjectResult)createResult;
-        string objectKey = GetObjectKeyFromUploadResponse(createOkResult);
+        Assert.IsType<CreatedAtActionResult>(createResult);
+        var createCreatedResult = (CreatedAtActionResult)createResult;
+        string objectKey = GetObjectKeyFromUploadResponse(createCreatedResult);
 
         // 2. GET: Verify document exists
         var getResult = await controller.GetDocument(objectKey);
@@ -362,8 +363,8 @@ public class DocumentsControllerPutDeleteTests
             };
 
             var uploadResult = await controller.Upload(file);
-            var uploadOkResult = Assert.IsType<OkObjectResult>(uploadResult);
-            keys.Add(GetObjectKeyFromUploadResponse(uploadOkResult));
+            var uploadCreatedResult = Assert.IsType<CreatedAtActionResult>(uploadResult);
+            keys.Add(GetObjectKeyFromUploadResponse(uploadCreatedResult));
         }
 
         // Update the first document
