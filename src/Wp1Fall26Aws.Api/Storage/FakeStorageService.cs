@@ -66,6 +66,33 @@ public class FakeStorageService : IStorageService
         return Task.FromResult<DocumentMetadata?>(metadata);
     }
 
+    public async Task<string?> UpdateAsync(string key, Stream file, string contentType, CancellationToken cancellationToken = default)
+    {
+        // Check if document exists
+        if (!_files.ContainsKey(key))
+        {
+            return null;
+        }
+
+        // Replace with new content
+        using MemoryStream memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream, cancellationToken);
+
+        _files[key] = new StoredDocument
+        {
+            Content = memoryStream.ToArray(),
+            ContentType = contentType,
+            UploadedAt = DateTime.UtcNow
+        };
+
+        return key;
+    }
+
+    public Task<bool> DeleteAsync(string key, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_files.Remove(key));
+    }
+
     /// <summary>
     /// Extracts the file name from a key in the format "documents/{guid}-{fileName}".
     /// Uses LastIndexOf to find the separator dash (after the UUID which contains dashes).

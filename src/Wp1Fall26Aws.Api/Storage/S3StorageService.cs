@@ -95,6 +95,55 @@ public class S3StorageService : IStorageService
         }
     }
 
+    public async Task<string?> UpdateAsync(string key, Stream file, string contentType, CancellationToken cancellationToken = default)
+    {
+        // First check if the document exists
+        var existingMetadata = await GetMetadataAsync(key, cancellationToken);
+        if (existingMetadata == null)
+        {
+            return null;
+        }
+
+        // Replace the object with new content
+        var putRequest = new PutObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = key,
+            InputStream = file,
+            ContentType = contentType
+        };
+
+        await _s3Client.PutObjectAsync(putRequest, cancellationToken);
+        return key;
+    }
+
+    public async Task<bool> DeleteAsync(string key, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // First check if the document exists
+            var metadata = await GetMetadataAsync(key, cancellationToken);
+            if (metadata == null)
+            {
+                return false;
+            }
+
+            // Delete the object
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = key
+            };
+
+            await _s3Client.DeleteObjectAsync(deleteRequest, cancellationToken);
+            return true;
+        }
+        catch (AmazonS3Exception)
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// Extracts the file name from a key in the format "documents/{guid}-{fileName}".
     /// Uses LastIndexOf to find the separator dash (after the UUID which contains dashes).

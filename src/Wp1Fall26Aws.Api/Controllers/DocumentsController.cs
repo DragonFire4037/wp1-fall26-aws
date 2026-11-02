@@ -81,4 +81,65 @@ public class DocumentsController : ControllerBase
         { objectKey = storedKey, fileName = file.FileName, contentType = file.ContentType, size = file.Length }
         );
     }
+
+    /// <summary>
+    /// Updates (replaces) an existing document with a new file.
+    /// </summary>
+    /// <param name="key">The document key to update</param>
+    /// <returns>Updated metadata if successful, 404 if document not found.</returns>
+    [HttpPut("{**key}")]
+    [ProducesResponseType(typeof(DocumentMetadata), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateDocument(string key, IFormFile file)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return BadRequest("Document key is required.");
+
+        if (file == null || file.Length == 0)
+            return BadRequest("A file is required.");
+
+        const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+        if (file.Length > maxFileSize)
+            return BadRequest("File exceeds the 5 MB size limit.");
+
+        var allowedTypes = new[] { "text/plain", "application/pdf" };
+
+        if (!allowedTypes.Contains(file.ContentType))
+            return BadRequest("File type is not allowed.");
+
+        await using var stream = file.OpenReadStream();
+
+        var updatedKey = await _storageService.UpdateAsync(key, stream, file.ContentType);
+
+        if (updatedKey == null)
+            return NotFound(new { message = "Document not found.", key });
+
+        // Return updated metadata
+        var metadata = await _storageService.GetMetadataAsync(updatedKey);
+        return Ok(metadata);
+    }
+
+    /// <summary>
+    /// Deletes an existing document.
+    /// </summary>
+    /// <param name="key">The document key to delete</param>
+    /// <returns>204 NoContent if successful, 404 if document not found.</returns>
+    [HttpDelete("{**key}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDocument(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return BadRequest("Document key is required.");
+
+        var deleted = await _storageService.DeleteAsync(key);
+
+        if (!deleted)
+            return NotFound(new { message = "Document not found.", key });
+
+        return NoContent();
+    }
 }
+

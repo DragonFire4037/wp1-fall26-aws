@@ -21,4 +21,20 @@ public interface IStorageService
     /// <param name="key">The document key/path</param>
     /// <returns>The document metadata, or null if not found</returns>
     Task<DocumentMetadata?> GetMetadataAsync(string key, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates (replaces) an existing document with a new file.
+    /// </summary>
+    /// <param name="key">The document key to update</param>
+    /// <param name="file">The new file content</param>
+    /// <param name="contentType">The MIME type of the file</param>
+    /// <returns>The updated document key, or null if document not found</returns>
+    Task<string?> UpdateAsync(string key, Stream file, string contentType, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes an existing document from storage.
+    /// </summary>
+    /// <param name="key">The document key to delete</param>
+    /// <returns>True if deletion succeeded, false if document not found</returns>
+    Task<bool> DeleteAsync(string key, CancellationToken cancellationToken = default);
 }
