@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Management Client</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📄 Document Management</h1>
+            <div class="status-bar">
+                <span class="status-label">API Status:</span>
+                <span id="apiStatus" class="status-indicator disconnected">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <h2>Upload Document</h2>
+                <div class="upload-form-container">
+                    <form id="uploadForm" class="upload-form">
+                        <div class="file-input-wrapper">
+                            <input 
+                                type="file" 
+                                id="fileInput" 
+                                accept=".txt,.pdf"
+                                required
+                            >
+                            <label for="fileInput" class="file-input-label">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Choose File (TXT or PDF)</span>
+                            </label>
+                            <span class="file-size-limit">Max 5 MB</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="uploadButton">
+                            <span class="btn-icon">⬆️</span>
+                            Upload
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Status Messages -->
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Documents Section -->
+            <section class="documents-section">
+                <h2>Documents</h2>
+                <div class="documents-controls">
+                    <button id="refreshButton" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        Refresh
+                    </button>
+                    <span id="documentCount" class="document-count"></span>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="loading-indicator hidden">
+                    <div class="spinner"></div>
+                    <p>Loading documents...</p>
+                </div>
+
+                <!-- Documents Table -->
+                <div class="table-container">
+                    <table id="documentsTable" class="documents-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Size</th>
+                                <th>Type</th>
+                                <th>Modified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="documentsTableBody">
+                            <!-- Documents will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-state-icon">📭</div>
+                    <p>No documents found</p>
+                    <p class="empty-state-hint">Upload a document to get started</p>
+                </div>
+            </section>
+
+            <!-- Selected Document Details -->
+            <section id="detailsSection" class="details-section hidden">
+                <h2>Document Details</h2>
+                <div class="details-container">
+                    <div class="detail-item">
+                        <span class="detail-label">File Name:</span>
+                        <span id="detailFileName" class="detail-value">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Object Key:</span>
+                        <span id="detailKey" class="detail-value detail-key">—</span>
+                        <button id="copyKeyButton" class="btn btn-small btn-copy" title="Copy to clipboard">
+                            📋
+                        </button>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Size:</span>
+                        <span id="detailSize" class="detail-value">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Content Type:</span>
+                        <span id="detailContentType" class="detail-value">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Last Modified:</span>
+                        <span id="detailLastModified" class="detail-value">—</span>
+                    </div>
+                </div>
+                <div class="details-actions">
+                    <button id="deleteButton" class="btn btn-danger">
+                        <span class="btn-icon">🗑️</span>
+                        Delete Document
+                    </button>
+                    <button id="closeDetailsButton" class="btn btn-secondary">
+                        <span class="btn-icon">✕</span>
+                        Close
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Document Management Client v1.0</p>
+            <p class="footer-hint">Supports: .txt, .pdf (max 5 MB each)</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

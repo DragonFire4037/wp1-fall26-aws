@@ -138,10 +138,12 @@ public class S3StorageService : IStorageService
             await _s3Client.DeleteObjectAsync(deleteRequest, cancellationToken);
             return true;
         }
-        catch (AmazonS3Exception)
+        catch (AmazonS3Exception ex) when (ex.ErrorCode == "NoSuchKey" || ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
+            // Object does not exist - return false to indicate not found
             return false;
         }
+        // Other AmazonS3Exception types (permission errors, network issues, etc.) propagate
     }
 
     /// <summary>
