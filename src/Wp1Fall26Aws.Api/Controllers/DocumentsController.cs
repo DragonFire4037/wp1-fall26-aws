@@ -40,7 +40,10 @@ public class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(key))
             return BadRequest("Document key is required.");
 
-        var metadata = await _storageService.GetMetadataAsync(key);
+        // URL-decode the key since it comes from the URL path
+        var decodedKey = Uri.UnescapeDataString(key);
+
+        var metadata = await _storageService.GetMetadataAsync(decodedKey);
 
         if (metadata == null)
             return NotFound(new { message = "Document not found.", key });
@@ -102,6 +105,9 @@ public class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(key))
             return BadRequest("Document key is required.");
 
+        // URL-decode the key since it comes from the URL path
+        var decodedKey = Uri.UnescapeDataString(key);
+
         if (file == null || file.Length == 0)
             return BadRequest("A file is required.");
 
@@ -117,7 +123,7 @@ public class DocumentsController : ControllerBase
 
         await using var stream = file.OpenReadStream();
 
-        var updatedKey = await _storageService.UpdateAsync(key, stream, file.ContentType);
+        var updatedKey = await _storageService.UpdateAsync(decodedKey, stream, file.ContentType);
 
         if (updatedKey == null)
             return NotFound(new { message = "Document not found.", key });
@@ -140,7 +146,10 @@ public class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(key))
             return BadRequest("Document key is required.");
 
-        var deleted = await _storageService.DeleteAsync(key);
+        // URL-decode the key since it comes from the URL path
+        var decodedKey = Uri.UnescapeDataString(key);
+
+        var deleted = await _storageService.DeleteAsync(decodedKey);
 
         if (!deleted)
             return NotFound(new { message = "Document not found.", key });

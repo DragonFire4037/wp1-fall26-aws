@@ -118,6 +118,27 @@
                         <span class="detail-label">Last Modified:</span>
                         <span id="detailLastModified" class="detail-value">—</span>
                     </div>
+
+                    <!-- Replace File Section -->
+                    <div class="replace-section">
+                        <h3>Replace File</h3>
+                        <div class="file-input-wrapper">
+                            <input 
+                                type="file" 
+                                id="replaceFileInput" 
+                                accept=".txt,.pdf"
+                            >
+                            <label for="replaceFileInput" class="file-input-label">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Choose New File (TXT or PDF)</span>
+                            </label>
+                            <span class="file-size-limit">Max 5 MB</span>
+                        </div>
+                        <button type="button" id="replaceButton" class="btn btn-primary">
+                            <span class="btn-icon">🔄</span>
+                            Replace File
+                        </button>
+                    </div>
                 </div>
                 <div class="details-actions">
                     <button id="deleteButton" class="btn btn-danger">

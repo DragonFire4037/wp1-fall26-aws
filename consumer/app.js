@@ -7,20 +7,23 @@ let selectedDocumentKey = null;
 let documents = [];
 
 // ==================== DOM Elements ====================
-const apiStatusEl = document.getElementById('apiStatus');
-const uploadForm = document.getElementById('uploadForm');
-const fileInput = document.getElementById('fileInput');
-const uploadButton = document.getElementById('uploadButton');
-const refreshButton = document.getElementById('refreshButton');
-const statusMessageEl = document.getElementById('statusMessage');
-const loadingIndicatorEl = document.getElementById('loadingIndicator');
-const documentsTableBody = document.getElementById('documentsTableBody');
-const emptyStateEl = document.getElementById('emptyState');
-const documentCountEl = document.getElementById('documentCount');
-const detailsSection = document.getElementById('detailsSection');
-const deleteButton = document.getElementById('deleteButton');
-const closeDetailsButton = document.getElementById('closeDetailsButton');
-const copyKeyButton = document.getElementById('copyKeyButton');
+// These will be initialized in setupEventListeners() after DOM is ready
+let apiStatusEl;
+let uploadForm;
+let fileInput;
+let uploadButton;
+let refreshButton;
+let statusMessageEl;
+let loadingIndicatorEl;
+let documentsTableBody;
+let emptyStateEl;
+let documentCountEl;
+let detailsSection;
+let deleteButton;
+let closeDetailsButton;
+let copyKeyButton;
+let replaceFileInput;
+let replaceButton;
 
 // ==================== Initialization ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,11 +37,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ==================== Event Listeners ====================
 function setupEventListeners() {
+    // Initialize DOM elements after DOM is ready
+    apiStatusEl = document.getElementById('apiStatus');
+    uploadForm = document.getElementById('uploadForm');
+    fileInput = document.getElementById('fileInput');
+    uploadButton = document.getElementById('uploadButton');
+    refreshButton = document.getElementById('refreshButton');
+    statusMessageEl = document.getElementById('statusMessage');
+    loadingIndicatorEl = document.getElementById('loadingIndicator');
+    documentsTableBody = document.getElementById('documentsTableBody');
+    emptyStateEl = document.getElementById('emptyState');
+    documentCountEl = document.getElementById('documentCount');
+    detailsSection = document.getElementById('detailsSection');
+    deleteButton = document.getElementById('deleteButton');
+    closeDetailsButton = document.getElementById('closeDetailsButton');
+    copyKeyButton = document.getElementById('copyKeyButton');
+    replaceFileInput = document.getElementById('replaceFileInput');
+    replaceButton = document.getElementById('replaceButton');
+
     uploadForm.addEventListener('submit', handleUpload);
     refreshButton.addEventListener('click', loadDocuments);
     deleteButton.addEventListener('click', handleDelete);
     closeDetailsButton.addEventListener('click', closeDetails);
     copyKeyButton.addEventListener('click', copyKeyToClipboard);
+    replaceButton.addEventListener('click', handleReplace);
+    replaceFileInput.addEventListener('change', updateReplaceFileLabel);
 
     // Drag and drop support
     fileInput.addEventListener('change', updateFileLabel);
@@ -142,6 +165,15 @@ function renderDocuments() {
         const row = createTableRow(doc);
         documentsTableBody.appendChild(row);
     });
+
+    // If a document is selected, update its details panel with latest data
+    if (selectedDocumentKey) {
+        const selectedDoc = documents.find(d => d.key === selectedDocumentKey);
+        if (selectedDoc) {
+            console.log('Updating details panel for selected document');
+            showDetailsSection(selectedDoc);
+        }
+    }
 }
 
 function createTableRow(doc) {
@@ -184,16 +216,21 @@ function selectDocument(key) {
 function showDetailsSection(doc) {
     detailsSection.classList.remove('hidden');
 
-    document.getElementById('detailFileName').textContent = escapeHtml(doc.fileName || '—');
-    document.getElementById('detailKey').textContent = escapeHtml(doc.key || '—');
-    document.getElementById('detailSize').textContent = formatFileSize(doc.size || 0);
-    document.getElementById('detailContentType').textContent = escapeHtml(doc.contentType || '—');
+    const fileNameEl = document.getElementById('detailFileName');
+    const keyEl = document.getElementById('detailKey');
+    const sizeEl = document.getElementById('detailSize');
+    const contentTypeEl = document.getElementById('detailContentType');
+    const lastModEl = document.getElementById('detailLastModified');
+
+    fileNameEl.textContent = escapeHtml(doc.fileName || '—');
+    keyEl.textContent = escapeHtml(doc.key || '—');
+    sizeEl.textContent = formatFileSize(doc.size || 0);
+    contentTypeEl.textContent = escapeHtml(doc.contentType || '—');
 
     if (doc.lastModified) {
-        document.getElementById('detailLastModified').textContent = 
-            new Date(doc.lastModified).toLocaleString();
+        lastModEl.textContent = new Date(doc.lastModified).toLocaleString();
     } else {
-        document.getElementById('detailLastModified').textContent = '—';
+        lastModEl.textContent = '—';
     }
 
     // Scroll to details section
@@ -243,6 +280,23 @@ function updateFileLabel() {
     }
 }
 
+function updateReplaceFileLabel() {
+    const fileLabel = document.querySelector('.replace-section .file-input-label');
+    const fileName = replaceFileInput.files[0]?.name;
+
+    if (fileName) {
+        const fileText = fileLabel.querySelector('.file-text');
+        fileText.textContent = escapeHtml(fileName);
+        fileText.style.color = '#16a34a';
+        fileLabel.style.borderColor = '#16a34a';
+    } else {
+        const fileText = fileLabel.querySelector('.file-text');
+        fileText.textContent = 'Choose New File (TXT or PDF)';
+        fileText.style.color = 'var(--color-primary)';
+        fileLabel.style.borderColor = 'var(--color-primary)';
+    }
+}
+
 async function handleUpload(e) {
     e.preventDefault();
 
@@ -285,7 +339,9 @@ async function handleUpload(e) {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Upload failed: ${response.status}`);
+            const errorMessage = errorData.message || errorData.error || `Upload failed: ${response.status}`;
+            console.error('Upload error response:', errorData);
+            throw new Error(errorMessage);
         }
 
         const result = await response.json();
@@ -321,15 +377,14 @@ async function handleDelete() {
         deleteButton.disabled = true;
         deleteButton.textContent = '🗑️ Deleting...';
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/documents/${encodeURIComponent(selectedDocumentKey)}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/json'
-                }
+        const url = `${API_BASE_URL}/api/documents/${selectedDocumentKey}`;
+
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
             }
-        );
+        });
 
         if (!response.ok) {
             throw new Error(`Delete failed: ${response.status}`);
@@ -344,6 +399,82 @@ async function handleDelete() {
     } finally {
         deleteButton.disabled = false;
         deleteButton.innerHTML = '<span class="btn-icon">🗑️</span>Delete Document';
+    }
+}
+
+// ==================== Document Replacement (PUT) ====================
+async function handleReplace() {
+    if (!selectedDocumentKey) {
+        showError('No document selected');
+        return;
+    }
+
+    const file = replaceFileInput.files[0];
+    if (!file) {
+        showError('Please select a file to replace with');
+        return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['text/plain', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+        showError('Only TXT and PDF files are allowed');
+        replaceFileInput.value = '';
+        updateReplaceFileLabel();
+        return;
+    }
+
+    // Validate file size (5 MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showError('File size exceeds 5 MB limit');
+        replaceFileInput.value = '';
+        updateReplaceFileLabel();
+        return;
+    }
+
+    try {
+        replaceButton.disabled = true;
+        replaceButton.textContent = '⏳ Replacing...';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const url = `${API_BASE_URL}/api/documents/${selectedDocumentKey}`;
+
+        const response = await fetch(url, {
+            method: 'PUT',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Replace failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        showSuccess(`Document replaced successfully`);
+
+        // Reset file input
+        replaceFileInput.value = '';
+        updateReplaceFileLabel();
+
+        // Update the document in memory with the new metadata from API
+        const docIndex = documents.findIndex(d => d.key === selectedDocumentKey);
+        if (docIndex !== -1) {
+            documents[docIndex] = result;
+            showDetailsSection(documents[docIndex]);
+            renderDocuments();
+        }
+
+        // Reload documents silently in background to ensure everything is in sync
+        loadDocuments().catch(err => console.error('Background reload failed:', err));
+    } catch (error) {
+        console.error('Replace error:', error);
+        showError(`Failed to replace document: ${error.message}`);
+    } finally {
+        replaceButton.disabled = false;
+        replaceButton.innerHTML = '<span class="btn-icon">🔄</span>Replace File';
     }
 }
 

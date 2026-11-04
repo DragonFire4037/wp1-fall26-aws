@@ -546,6 +546,32 @@ section h2 {
     flex-wrap: wrap;
 }
 
+/* ==================== Replace Section ==================== */
+.replace-section {
+    background-color: var(--color-background);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-border);
+}
+
+.replace-section h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+}
+
+.replace-section .file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.replace-section .btn-primary {
+    align-self: flex-start;
+}
+
 /* ==================== Footer ==================== */
 .footer {
     margin-top: var(--spacing-2xl);
